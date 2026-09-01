@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+nav h1 {
+  color: #fff;
+  margin: 0;
+}
