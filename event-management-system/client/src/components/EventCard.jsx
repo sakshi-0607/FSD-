@@ -1,31 +1,50 @@
-function EventCard() {
+import { useState } from "react";
+
+function EventCard({
+  title,
+  description,
+  date,
+  location
+}) 
+{
+  const [registered, setRegistered] = useState(false);
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-xl">
+    <div className="rounded-xl border bg-white p-6 shadow-lg">
+      <h3 className="text-2xl font-bold text-slate-900">
+        {title}
+      </h3>
 
-      <div className="h-40 bg-indigo-500"></div>
+      <p className="mt-2 text-slate-600">
+        {description}
+      </p>
 
-      <div className="p-6">
-
-        <span className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
-          Open
-        </span>
-
-        <h2 className="mt-4 text-xl font-bold text-slate-800">
-          React Workshop
-        </h2>
-
-        <p className="mt-2 text-slate-600">
-          Learn React and build modern web applications.
+      {registered ? (
+        <p className="mt-4 font-semibold text-green-600">
+          Successfully Registered!
         </p>
+      ) : (
+        <button
+          onClick={() => setRegistered(true)}
+          className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white"
+        >
+          Register
+        </button>
+      )}
 
-        <p className="mt-4 text-sm text-slate-500">
-          25 August 2026
-        </p>
 
-      </div>
+
+
+      <p className="mt-2 text-sm text-slate-500">
+        📅 {date}
+      </p>
+
+      <p className="mt-1 text-sm text-slate-500">
+        📍 {location}
+      </p>
 
     </div>
-  )
+    
+  );
 }
 
-export default EventCard
+export default EventCard;
