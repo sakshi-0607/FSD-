@@ -1,50 +1,38 @@
-import EventCard from "../components/EventCard";
-
-function Home() {
+function Home({ onExplore }) {
   return (
-    <div>
+    <div className="min-h-screen">
+
       {/* Hero Section */}
       <section className="bg-slate-100 px-6 py-20 text-center">
-       <h1 className="text-2xl md:text-6xl font-bold text-red-500">
-          Welcome to EventHub
+        <h1 className="text-5xl sm:text-6xl md:text-3xl font-bold text-slate-900">
+          Discover Amazing Events
         </h1>
-        <p>
-          Discover and register for exciting events.
+
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
+          Find exciting events, connect with people, and register for
+          experiences that interest you.
         </p>
 
-        <button className="mt-8 rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700 w-full md:w-auto">
+        <button 
+          onClick={onExplore}
+          className="mt-8 rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700 cursor-pointer"
+        >
           Explore Events
         </button>
       </section>
 
-      {/* Events Section */}
-      <section className="bg-white px-6 py-16">
-        <div className="mx-auto max-w-7xl">
+      {/* Introduction Section */}
+      <section className="bg-white px-6 py-16 text-center">
+        <h2 className="text-3xl font-bold text-slate-900">
+          Find Your Next Experience
+        </h2>
 
-          <h2 className="text-3xl font-bold text-slate-900">
-            Upcoming Events
-          </h2>
-
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-2">
-            <EventCard
-              title="Tech Fest 2026"
-              description="A technology event for students."
-              date="20 September 2026"
-              location="Mumbai"
-            />
-            
-            <EventCard
-              title="React Workshop"
-              description="Learn React from basics to advanced."
-              date="25 September 2026"
-              location="Pune"
-            />
-
-
-          </div>
-
-        </div>
+        <p className="mx-auto mt-4 max-w-2xl text-slate-600">
+          Explore technology workshops, conferences, festivals, and
+          other exciting events happening near you.
+        </p>
       </section>
+
     </div>
   );
 }

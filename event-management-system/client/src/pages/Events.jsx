@@ -1,7 +1,7 @@
 import { useState } from "react"
 import EventCard from "../components/EventCard"
 
-function Events() {
+function Events({ onNavigate }) {
 
   const [search, setSearch] = useState("")
 
@@ -80,57 +80,14 @@ function Events() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* ================= NAVBAR ================= */}
-      <nav className="bg-white shadow-sm">
-
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-          {/* Logo */}
-          <div className="text-2xl font-bold text-blue-600">
-            EventHub
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center gap-6">
-
-            <a
-              href="#"
-              className="text-gray-700 hover:text-blue-600 font-medium"
-            >
-              Home
-            </a>
-
-            <a
-              href="#"
-              className="text-blue-600 font-semibold"
-            >
-              Events
-            </a>
-
-            <a
-              href="#"
-              className="text-gray-700 hover:text-blue-600 font-medium"
-            >
-              My Registrations
-            </a>
-
-            <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
-              Login
-            </button>
-
-          </div>
-
-        </div>
-
-      </nav>
 
 
       {/* ================= HEADER ================= */}
-      <section className="bg-blue-600 text-white">
+      <section className="bg-blue-400 sm:bg-blue-600 md:bg-blue-700 lg:bg-blue-900 text-white transition-colors duration-500 ease-in-out">
 
         <div className="max-w-7xl mx-auto px-6 py-14">
 
-          <h1 className="text-4xl md:text-5xl font-bold">
+          <h1 className="text-5xl sm:text-6xl md:text-3xl font-bold">
             Upcoming Events
           </h1>
 
@@ -185,8 +142,10 @@ function Events() {
 
               <EventCard
                 key={event.id}
-                event={event}
-                onRegister={handleRegister}
+                title={event.name}
+                description={event.description}
+                date={event.date}
+                location={event.location}
               />
 
             ))}
