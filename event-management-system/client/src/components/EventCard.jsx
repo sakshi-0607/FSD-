@@ -4,46 +4,50 @@ function EventCard({
   title,
   description,
   date,
-  location
-}) 
-{
+  location,
+}) {
+
   const [registered, setRegistered] = useState(false);
+
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-lg">
-      <h3 className="text-2xl font-bold text-slate-900">
+    <div className="rounded-xl border bg-white p-6 shadow-md">
+
+      <h2 className="text-xl font-bold text-slate-900">
         {title}
-      </h3>
+      </h2>
 
       <p className="mt-2 text-slate-600">
         {description}
       </p>
 
+      <p className="mt-3 text-slate-600">
+        Date: {date}
+      </p>
+
+      <p className="text-slate-600">
+        Location: {location}
+      </p>
+
       {registered ? (
+
         <p className="mt-4 font-semibold text-green-600">
           Successfully Registered!
         </p>
+
       ) : (
+
         <button
           onClick={() => setRegistered(true)}
-          className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white"
+          className="mt-4 rounded-lg bg-indigo-600 px-4 py-2
+                     text-white transition
+                     hover:bg-indigo-700"
         >
           Register
         </button>
+
       )}
 
-
-
-
-      <p className="mt-2 text-sm text-slate-500">
-        📅 {date}
-      </p>
-
-      <p className="mt-1 text-sm text-slate-500">
-        📍 {location}
-      </p>
-
     </div>
-    
   );
 }
 
