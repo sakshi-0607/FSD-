@@ -4,6 +4,7 @@ function EventCard({
   title,
   description,
   date,
+  time,
   location,
 }) {
 
@@ -22,6 +23,10 @@ function EventCard({
 
       <p className="mt-3 text-slate-600">
         Date: {date}
+      </p>
+
+      <p className="text-slate-600">
+        Time: {time}
       </p>
 
       <p className="text-slate-600">
