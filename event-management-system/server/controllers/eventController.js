@@ -6,6 +6,7 @@ let events = [
     date: "2026-11-15",
     time: "10:00",
     location: "Mumbai",
+    category: "Technology",
   },
   {
     id: 2,
@@ -14,6 +15,7 @@ let events = [
     date: "2026-11-20",
     time: "14:00",
     location: "Pune",
+    category: "Workshop",
   },
   {
     id: 3,
@@ -22,6 +24,7 @@ let events = [
     date: "2026-11-25",
     time: "09:30",
     location: "Bengaluru",
+    category: "Conference",
   },
 ];
 

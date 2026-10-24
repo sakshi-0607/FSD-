@@ -1,12 +1,12 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { AuthContext } from "../context/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
 
   function closeMenu() {
     setMenuOpen(false);
