@@ -37,6 +37,12 @@ function getEvents(req, res) {
 function getEventById(req, res) {
   const id = Number(req.params.id);
 
+  if (!Number.isInteger(id)) {
+    return res.status(404).json({
+      message: "Event not found",
+    });
+  }
+
   const event = events.find((event) => event.id === id);
 
   if (!event) {
@@ -50,7 +56,7 @@ function getEventById(req, res) {
 
 // POST /api/events
 function createEvent(req, res) {
-  const { title, description, date, time, location } = req.body;
+  const { title, description, date, time, location, category } = req.body;
 
   if (
     !title?.trim() ||
@@ -73,6 +79,7 @@ function createEvent(req, res) {
     date: date.trim(),
     time: time.trim(),
     location: location.trim(),
+    category: category?.trim() || "Other",
   };
 
   events.push(newEvent);
@@ -87,6 +94,12 @@ function createEvent(req, res) {
 function updateEvent(req, res) {
   const id = Number(req.params.id);
 
+  if (!Number.isInteger(id)) {
+    return res.status(404).json({
+      message: "Event not found",
+    });
+  }
+
   const index = events.findIndex((event) => event.id === id);
 
   if (index === -1) {
@@ -95,7 +108,7 @@ function updateEvent(req, res) {
     });
   }
 
-  const { title, description, date, time, location } = req.body;
+  const { title, description, date, time, location, category } = req.body;
 
   if (
     !title?.trim() ||
@@ -116,6 +129,7 @@ function updateEvent(req, res) {
     date: date.trim(),
     time: time.trim(),
     location: location.trim(),
+    category: category?.trim() || "Other",
   };
 
   res.status(200).json({

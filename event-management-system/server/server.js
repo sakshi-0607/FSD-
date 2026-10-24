@@ -21,10 +21,23 @@ app.use((req, res) => {
   });
 });
 
+// Return JSON for malformed request bodies and unexpected server errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res.status(400).json({
+      message: "Invalid JSON request body",
+    });
+  }
+
+  console.error(err);
+  res.status(500).json({
+    message: "Internal server error",
+  });
+});
+
 // Start server
 const PORT = 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
