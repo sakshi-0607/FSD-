@@ -1,163 +1,253 @@
-let events = [
-  {
-    id: 1,
-    title: "Tech Fest 2026",
-    description: "A technology event for students.",
-    date: "2026-11-15",
-    time: "10:00",
-    location: "Mumbai",
-    category: "Technology",
-  },
-  {
-    id: 2,
-    title: "React Workshop",
-    description: "Learn React from basics to advanced.",
-    date: "2026-11-20",
-    time: "14:00",
-    location: "Pune",
-    category: "Workshop",
-  },
-  {
-    id: 3,
-    title: "AI Conference",
-    description: "Explore the latest AI developments.",
-    date: "2026-11-25",
-    time: "09:30",
-    location: "Bengaluru",
-    category: "Conference",
-  },
-];
+const mongoose = require("mongoose");
+const Event = require("../models/Event");
+const Registration = require("../models/Registration");
 
 // GET /api/events
-function getEvents(req, res) {
-  res.status(200).json(events);
+// Retrieve all events
+async function getEvents(req, res) {
+  try {
+    const events = await Event.find().sort({ date: 1 });
+    res.status(200).json(events);
+  } catch (error) {
+    console.error("Error retrieving events:", error.message);
+    res.status(500).json({
+      message: "Failed to retrieve events",
+    });
+  }
 }
 
 // GET /api/events/:id
-function getEventById(req, res) {
-  const id = Number(req.params.id);
+// Retrieve one event
+async function getEventById(req, res) {
+  try {
+    const { id } = req.params;
 
-  if (!Number.isInteger(id)) {
-    return res.status(404).json({
-      message: "Event not found",
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "Invalid event ID",
+      });
+    }
+
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found",
+      });
+    }
+
+    res.status(200).json(event);
+  } catch (error) {
+    console.error("Error retrieving event:", error.message);
+    res.status(500).json({
+      message: "Failed to retrieve event",
     });
   }
-
-  const event = events.find((event) => event.id === id);
-
-  if (!event) {
-    return res.status(404).json({
-      message: "Event not found",
-    });
-  }
-
-  res.status(200).json(event);
 }
 
 // POST /api/events
-function createEvent(req, res) {
-  const { title, description, date, time, location, category } = req.body;
+// Create an event
+async function createEvent(req, res) {
+  try {
+    const { title, description, date, time, location, category } = req.body;
 
-  if (
-    !title?.trim() ||
-    !description?.trim() ||
-    !date?.trim() ||
-    !time?.trim() ||
-    !location?.trim()
-  ) {
-    return res.status(400).json({
-      message: "All event fields are required",
+    if (
+      typeof title !== "string" ||
+      !title.trim() ||
+      typeof description !== "string" ||
+      !description.trim() ||
+      !date ||
+      (typeof date === "string" && !date.trim()) ||
+      typeof time !== "string" ||
+      !time.trim() ||
+      typeof location !== "string" ||
+      !location.trim()
+    ) {
+      return res.status(400).json({
+        message: "All event fields are required",
+      });
+    }
+
+    const event = await Event.create({
+      title: title.trim(),
+      description: description.trim(),
+      date,
+      time: time.trim(),
+      location: location.trim(),
+      ...(category ? { category: category.trim() } : {}),
+      ...(req.user ? { createdBy: req.user._id } : {}),
+    });
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("event:created", {
+        message: `A new event has been added: ${event.title}`,
+        event: {
+          _id: event._id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+        },
+        createdAt: new Date(),
+      });
+    }
+
+    res.status(201).json({
+      message: "Event created successfully",
+      event,
+    });
+  } catch (error) {
+    console.error("Error creating event:", error.message);
+    if (
+      error.name === "ValidationError" ||
+      error.name === "CastError"
+    ) {
+      return res.status(400).json({
+        message: "Invalid event data",
+        error: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: "Failed to create event",
     });
   }
-
-  const newEvent = {
-    id: events.length
-      ? Math.max(...events.map((event) => event.id)) + 1
-      : 1,
-    title: title.trim(),
-    description: description.trim(),
-    date: date.trim(),
-    time: time.trim(),
-    location: location.trim(),
-    category: category?.trim() || "Other",
-  };
-
-  events.push(newEvent);
-
-  res.status(201).json({
-    message: "Event created successfully",
-    event: newEvent,
-  });
 }
 
 // PUT /api/events/:id
-function updateEvent(req, res) {
-  const id = Number(req.params.id);
+// Update an event
+async function updateEvent(req, res) {
+  try {
+    const { id } = req.params;
 
-  if (!Number.isInteger(id)) {
-    return res.status(404).json({
-      message: "Event not found",
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "Invalid event ID",
+      });
+    }
+
+    const { title, description, date, time, location, category } = req.body;
+
+    if (
+      typeof title !== "string" ||
+      !title.trim() ||
+      typeof description !== "string" ||
+      !description.trim() ||
+      !date ||
+      (typeof date === "string" && !date.trim()) ||
+      typeof time !== "string" ||
+      !time.trim() ||
+      typeof location !== "string" ||
+      !location.trim()
+    ) {
+      return res.status(400).json({
+        message: "All event fields are required",
+      });
+    }
+
+    const event = await Event.findByIdAndUpdate(
+      id,
+      {
+        title: title.trim(),
+        description: description.trim(),
+        date,
+        time: time.trim(),
+        location: location.trim(),
+        ...(category ? { category: category.trim() } : {}),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found",
+      });
+    }
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("event:updated", {
+        message: `An event has been updated: ${event.title}`,
+        event: {
+          _id: event._id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+        },
+        createdAt: new Date(),
+      });
+    }
+
+    res.status(200).json({
+      message: "Event updated successfully",
+      event,
+    });
+  } catch (error) {
+    console.error("Error updating event:", error.message);
+    if (
+      error.name === "ValidationError" ||
+      error.name === "CastError"
+    ) {
+      return res.status(400).json({
+        message: "Invalid event data",
+        error: error.message,
+      });
+    }
+
+    res.status(500).json({
+      message: "Failed to update event",
     });
   }
-
-  const index = events.findIndex((event) => event.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Event not found",
-    });
-  }
-
-  const { title, description, date, time, location, category } = req.body;
-
-  if (
-    !title?.trim() ||
-    !description?.trim() ||
-    !date?.trim() ||
-    !time?.trim() ||
-    !location?.trim()
-  ) {
-    return res.status(400).json({
-      message: "All event fields are required",
-    });
-  }
-
-  events[index] = {
-    id,
-    title: title.trim(),
-    description: description.trim(),
-    date: date.trim(),
-    time: time.trim(),
-    location: location.trim(),
-    category: category?.trim() || "Other",
-  };
-
-  res.status(200).json({
-    message: "Event updated successfully",
-    event: events[index],
-  });
 }
 
 // DELETE /api/events/:id
-function deleteEvent(req, res) {
-  const id = Number(req.params.id);
+// Delete an event
+async function deleteEvent(req, res) {
+  try {
+    const { id } = req.params;
 
-  const index = events.findIndex((event) => event.id === id);
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "Invalid event ID",
+      });
+    }
 
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Event not found",
+    const event = await Event.findByIdAndDelete(id);
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found",
+      });
+    }
+
+    // Clean up all registrations associated with this event
+    await Registration.deleteMany({ event: event._id });
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("event:deleted", {
+        message: `An event has been cancelled: ${event.title}`,
+        event: {
+          _id: event._id,
+          title: event.title,
+        },
+        createdAt: new Date(),
+      });
+    }
+
+    res.status(200).json({
+      message: "Event deleted successfully",
+      event,
+    });
+  } catch (error) {
+    console.error("Error deleting event:", error.message);
+    res.status(500).json({
+      message: "Failed to delete event",
     });
   }
-
-  const deletedEvent = events[index];
-
-  events = events.filter((event) => event.id !== id);
-
-  res.status(200).json({
-    message: "Event deleted successfully",
-    event: deletedEvent,
-  });
 }
 
 module.exports = {

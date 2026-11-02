@@ -1,79 +1,87 @@
-import { useEffect, useState } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  loginUser,
+  registerUser,
+  getCurrentUser,
+} from "../services/api";
 
-import { AuthContext } from "./AuthContextValue";
+export const AuthContext = createContext(null);
 
 function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("eventHubUser");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [registrations, setRegistrations] = useState(() => {
-    const savedRegistrations = localStorage.getItem("eventHubRegistrations");
-    return savedRegistrations ? JSON.parse(savedRegistrations) : [];
-  });
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
+  // Restore and verify the login when the app opens.
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("eventHubUser", JSON.stringify(user));
+    let active = true;
+
+    async function restoreSession() {
+      const token = localStorage.getItem("eventHubToken");
+
+      if (!token) {
+        setAuthLoading(false);
+        return;
+      }
+
+      try {
+        const data = await getCurrentUser();
+        if (active) {
+          setUser(data.user);
+        }
+      } catch {
+        localStorage.removeItem("eventHubToken");
+        if (active) {
+          setUser(null);
+        }
+      } finally {
+        if (active) {
+          setAuthLoading(false);
+        }
+      }
     }
-  }, [user]);
 
-  useEffect(() => {
-    localStorage.setItem(
-      "eventHubRegistrations",
-      JSON.stringify(registrations)
-    );
-  }, [registrations]);
+    restoreSession();
 
-  function login(email) {
-    const loggedInUser = {
-      name: email.split("@")[0],
-      email: email,
+    return () => {
+      active = false;
     };
+  }, []);
 
-    setUser(loggedInUser);
+  async function login(email, password) {
+    const data = await loginUser({ email, password });
+    localStorage.setItem("eventHubToken", data.token);
+    setUser(data.user);
+    return data;
+  }
 
-    localStorage.setItem(
-      "eventHubUser",
-      JSON.stringify(loggedInUser)
-    );
+  async function register(name, email, password) {
+    const data = await registerUser({
+      name,
+      email,
+      password,
+    });
+    localStorage.setItem("eventHubToken", data.token);
+    setUser(data.user);
+    return data;
   }
 
   function logout() {
+    localStorage.removeItem("eventHubToken");
     setUser(null);
-
-    localStorage.removeItem("eventHubUser");
-  }
-
-  function registerForEvent(event) {
-    setRegistrations((currentRegistrations) => {
-      const alreadyRegistered = currentRegistrations.some(
-        (registeredEvent) => registeredEvent.id === event.id
-      );
-
-      if (alreadyRegistered) {
-        return currentRegistrations;
-      }
-
-      return [...currentRegistrations, event];
-    });
-  }
-
-  function unregisterFromEvent(eventId) {
-    setRegistrations((currentRegistrations) =>
-      currentRegistrations.filter((event) => event.id !== eventId)
-    );
   }
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        authLoading,
         login,
+        register,
         logout,
-        registrations,
-        registerForEvent,
-        unregisterFromEvent,
       }}
     >
       {children}

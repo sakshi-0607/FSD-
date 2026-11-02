@@ -1,7 +1,5 @@
 const express = require("express");
-
 const router = express.Router();
-
 const {
   getEvents,
   getEventById,
@@ -9,21 +7,18 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
+const {
+  protect,
+  adminOnly,
+} = require("../middleware/authMiddleware");
 
-// GET all events
+// Public routes
 router.get("/", getEvents);
-
-// GET one event
 router.get("/:id", getEventById);
 
-// CREATE an event
-router.post("/", createEvent);
-
-// UPDATE an event
-router.put("/:id", updateEvent);
-
-// DELETE an event
-router.delete("/:id", deleteEvent);
+// Admin-only routes
+router.post("/", protect, adminOnly, createEvent);
+router.put("/:id", protect, adminOnly, updateEvent);
+router.delete("/:id", protect, adminOnly, deleteEvent);
 
 module.exports = router;
-

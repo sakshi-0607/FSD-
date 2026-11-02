@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
-import useAuth from "../hooks/useAuth";
+import useAuth from "../hooks/useAuth.js";
+import NotificationBell from "./NotificationBell.jsx";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const { user, logout } = useAuth();
 
   function closeMenu() {
@@ -19,9 +18,7 @@ function Navbar() {
 
   return (
     <nav className="bg-slate-900 text-white">
-
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-
         {/* Logo */}
         <Link
           to="/"
@@ -33,7 +30,6 @@ function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden items-center gap-6 md:flex">
-
           <Link
             to="/"
             className="transition hover:text-indigo-400"
@@ -57,11 +53,21 @@ function Navbar() {
                 My Registrations
               </Link>
 
+              {user.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="transition hover:text-indigo-400"
+                >
+                  Admin Dashboard
+                </Link>
+              )}
+
               <span className="text-sm text-slate-300">
                 Hi, {user.name}
               </span>
 
               <button
+                type="button"
                 onClick={logout}
                 className="rounded-lg bg-red-600 px-4 py-2 transition hover:bg-red-700"
               >
@@ -86,27 +92,32 @@ function Navbar() {
             </>
           )}
 
+          <NotificationBell />
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="rounded-lg border border-slate-600 px-3 py-2 md:hidden"
-        >
-          {menuOpen ? "✕" : "☰"}
-        </button>
-
+        {/* Mobile controls */}
+        <div className="flex items-center gap-2 md:hidden">
+          <NotificationBell />
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            className="rounded-lg border border-slate-600 px-3 py-2 md:hidden"
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="border-t border-slate-700 px-6 py-4 md:hidden">
-
           <div className="flex flex-col gap-4">
-
             <Link
               to="/"
               onClick={closeMenu}
+              className="transition hover:text-indigo-400"
             >
               Home
             </Link>
@@ -114,6 +125,7 @@ function Navbar() {
             <Link
               to="/events"
               onClick={closeMenu}
+              className="transition hover:text-indigo-400"
             >
               Events
             </Link>
@@ -123,15 +135,27 @@ function Navbar() {
                 <Link
                   to="/my-registrations"
                   onClick={closeMenu}
+                  className="transition hover:text-indigo-400"
                 >
                   My Registrations
                 </Link>
+
+                {user.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    onClick={closeMenu}
+                    className="transition hover:text-indigo-400"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
 
                 <p className="text-sm text-slate-300">
                   Logged in as {user.name}
                 </p>
 
                 <button
+                  type="button"
                   onClick={handleLogout}
                   className="rounded-lg bg-red-600 px-4 py-2 text-left"
                 >
@@ -143,6 +167,7 @@ function Navbar() {
                 <Link
                   to="/login"
                   onClick={closeMenu}
+                  className="transition hover:text-indigo-400"
                 >
                   Login
                 </Link>
@@ -150,17 +175,15 @@ function Navbar() {
                 <Link
                   to="/register"
                   onClick={closeMenu}
+                  className="rounded-lg bg-indigo-600 px-4 py-2 text-center font-semibold transition hover:bg-indigo-700"
                 >
                   Register
                 </Link>
               </>
             )}
-
           </div>
-
         </div>
       )}
-
     </nav>
   );
 }
