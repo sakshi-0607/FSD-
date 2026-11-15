@@ -1,3 +1,6 @@
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.VITE_SOCKET_URL ? `${import.meta.env.VITE_SOCKET_URL}/api` : "/api");
+
 async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("eventHubToken");
   const headers = {
@@ -6,7 +9,7 @@ async function apiRequest(path, options = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers,
   });
