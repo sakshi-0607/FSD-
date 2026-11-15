@@ -1,0 +1,42 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    name: Build and Validate Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Backend Dependencies
+        working-directory: ./event-management-system/server
+        run: npm ci || npm install
+
+      - name: Validate Backend Code
+        working-directory: ./event-management-system/server
+        run: node -c server.js
+
+      - name: Install Frontend Dependencies
+        working-directory: ./event-management-system/client
+        run: npm ci || npm install
+
+      - name: Lint Frontend
+        working-directory: ./event-management-system/client
+        run: npm run lint
+
+      - name: Build Frontend
+        working-directory: ./event-management-system/client
+        run: npm run build
+
